@@ -7,6 +7,20 @@ import (
 	"time"
 )
 
+func GiveMeResponse(channel chan string) {
+	time.Sleep(2 * time.Second)
+	channel <- "Ricid Kumbara"
+}
+
+func OnlyIn(channel chan<- string) {
+	channel <- "Ricid Kumbara"
+}
+
+func OnlyOut(channel <-chan string) {
+	data := <-channel
+	fmt.Println(data)
+}
+
 func TestCreateChannel(t *testing.T) {
 	// channel := make(chan string)
 	// channel <- "Ricid"
@@ -24,15 +38,11 @@ func TestCreateChannel(t *testing.T) {
 		fmt.Println("Selesai Mengirim Data")
 	}()
 
+	fmt.Println("Menunggu Data")
 	data := <-channel
 	fmt.Println(data)
 
 	time.Sleep(5 * time.Second)
-}
-
-func GiveMeResponse(channel chan string) {
-	time.Sleep(2 * time.Second)
-	channel <- "Ricid Kumbara"
 }
 
 func TestChannelAsParameter(t *testing.T) {
@@ -45,15 +55,6 @@ func TestChannelAsParameter(t *testing.T) {
 	fmt.Println(data)
 
 	time.Sleep(5 * time.Second)
-}
-
-func OnlyIn(channel chan<- string) {
-	channel <- "Ricid Kumbara"
-}
-
-func OnlyOut(channel <-chan string) {
-	data := <-channel
-	fmt.Println(data)
 }
 
 func TestChannelInOut(t *testing.T) {
@@ -109,4 +110,72 @@ func TestRangeChannel(t *testing.T) {
 	}
 
 	fmt.Println("Selesai")
+}
+
+func TestSelectChannel(t *testing.T) {
+	channel1 := make(chan string)
+	channel2 := make(chan string)
+	defer close(channel1)
+	defer close(channel2)
+
+	go GiveMeResponse(channel1)
+	go GiveMeResponse(channel2)
+
+	// select {
+	// case data := <-channel1:
+	// 	fmt.Println("Data dari channel 1", data)
+	// case data := <-channel2:
+	// 	fmt.Println("Data dari channel 2", data)
+	// }
+
+	// select {
+	// case data := <-channel1:
+	// 	fmt.Println("Data dari channel 1", data)
+	// case data := <-channel2:
+	// 	fmt.Println("Data dari channel 2", data)
+	// }
+
+	counter := 0
+	for {
+		select {
+		case data := <-channel1:
+			fmt.Println("Data dari channel 1", data)
+			counter++
+		case data := <-channel2:
+			fmt.Println("Data dari channel 2", data)
+			counter++
+		}
+
+		if counter == 2 {
+			break
+		}
+	}
+}
+
+func TestDefaultSelect(t *testing.T) {
+	channel1 := make(chan string)
+	channel2 := make(chan string)
+	defer close(channel1)
+	defer close(channel2)
+
+	go GiveMeResponse(channel1)
+	go GiveMeResponse(channel2)
+
+	counter := 0
+	for {
+		select {
+		case data := <-channel1:
+			fmt.Println("Data dari channel 1", data)
+			counter++
+		case data := <-channel2:
+			fmt.Println("Data dari channel 2", data)
+			counter++
+		default:
+			fmt.Println("Menunggu Data", time.Now().UnixNano())
+		}
+
+		if counter == 2 {
+			break
+		}
+	}
 }
