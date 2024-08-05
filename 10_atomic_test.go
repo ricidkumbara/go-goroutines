@@ -27,4 +27,4 @@ func TestAtomic(t *testing.T) {
 
 // Jika ingin menghindari race condition pada tipe data primitif
 // maka cukup menggunakan atomic
-// kecuali untuk tipe data stuct barulah menggunakan mutex
+// kecuali untuk tipe data non-prmitif spt struct barulah menggunakan mutex
